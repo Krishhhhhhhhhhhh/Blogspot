@@ -1,0 +1,25 @@
+{
+  "name": "medium-project",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
+    "@prisma/client": "^7.7.0",
+    "@prisma/extension-accelerate": "^3.0.1",
+    "hono": "^4.12.14",
+    "init": "^0.1.2",
+    "jsonwebtoken": "^9.0.3",
+    "medium-commonjs-krishna": "^1.0.0",
+    "prisma": "^7.7.0"
+    
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.6.0",
+    "wrangler": "^4.4.0"
+  }
+}

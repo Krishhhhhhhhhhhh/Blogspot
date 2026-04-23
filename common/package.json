@@ -1,0 +1,19 @@
+{
+  "name": "medium-commonjs-krishna",
+  "version": "1.0.0",
+  "description": "Shared zod schemas and types for medium project",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}
