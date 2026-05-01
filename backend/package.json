@@ -13,7 +13,7 @@
     "hono": "^4.12.14",
     "init": "^0.1.2",
     "jsonwebtoken": "^9.0.3",
-    "medium-commonjs-krishna": "^1.0.0",
+    "medium-commonjs-krishna": "file:../common",
     "prisma": "^7.7.0"
     
   },

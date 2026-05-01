@@ -39,11 +39,14 @@ const getPrismaClient = (databaseUrl: string) => {
   return prismaClient;
 };
 
-// Middleware to set DATABASE_URL and verify auth
+// Middleware to set DATABASE_URL for all requests
 blogRouter.use('/*', async (c, next) => {
-  // Set DATABASE_URL in process.env BEFORE any Prisma operations
   process.env.DATABASE_URL = c.env.DATABASE_URL;
-  
+  await next();
+});
+
+// Auth middleware for protected routes (only POST and PUT)
+const authMiddleware = async (c: any, next: any) => {
   const authHeader = c.req.header("authorization") || "";
   const token = authHeader.replace("Bearer ", "").trim();
   
@@ -64,9 +67,57 @@ blogRouter.use('/*', async (c, next) => {
       message: "Unauthorized: Invalid token"
     });
   }
+};
+
+// GET all blogs (public)
+blogRouter.get('/bulk', async (c) => {
+  try {
+    const prisma = getPrismaClient(c.env.DATABASE_URL)!;
+    const blogs = await prisma.blog.findMany();
+    
+    return c.json({
+      blogs
+    });
+  } catch (e) {
+    c.status(500);
+    return c.json({
+      message: "Error fetching blogs",
+      error: e instanceof Error ? e.message : String(e)
+    });
+  }
 });
 
-blogRouter.post('/', async (c) => {
+// GET single blog (public)
+blogRouter.get('/:id', async (c) => {
+  try {
+    const id = parseInt(c.req.param('id'));
+    const prisma = getPrismaClient(c.env.DATABASE_URL)!;
+    
+    const blog = await prisma.blog.findUnique({
+      where: { id }
+    });
+    
+    if (!blog) {
+      c.status(404);
+      return c.json({
+        message: "Blog post not found"
+      });
+    }
+    
+    return c.json({
+      blog
+    });
+  } catch (e) {
+    c.status(500);
+    return c.json({
+      message: "Error fetching blog post",
+      error: e instanceof Error ? e.message : String(e)
+    });
+  }
+});
+
+// POST create blog (protected)
+blogRouter.post('/', authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
     const {success} = createBlogInput.safeParse(body);
@@ -98,7 +149,8 @@ blogRouter.post('/', async (c) => {
   }
 });
 
-blogRouter.put('/:id', async (c) => {
+// PUT update blog (protected)
+blogRouter.put('/:id', authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
     const {success} = updateBlogInput.safeParse(body);
@@ -126,52 +178,6 @@ blogRouter.put('/:id', async (c) => {
     c.status(500);
     return c.json({
       message: "Error updating blog post",
-      error: e instanceof Error ? e.message : String(e)
-    });
-  }
-});
-
-blogRouter.get('/:id', async (c) => {
-  try {
-    const id = parseInt(c.req.param('id'));
-    const prisma = getPrismaClient(c.env.DATABASE_URL)!;
-    
-    const blog = await prisma.blog.findUnique({
-      where: { id }
-    });
-    
-    if (!blog) {
-      c.status(404);
-      return c.json({
-        message: "Blog post not found"
-      });
-    }
-    
-    return c.json({
-      blog
-    });
-  } catch (e) {
-    c.status(500);
-    return c.json({
-      message: "Error fetching blog post",
-      error: e instanceof Error ? e.message : String(e)
-    });
-  }
-});
-
-// Get all blogs
-blogRouter.get('/', async (c) => {
-  try {
-    const prisma = getPrismaClient(c.env.DATABASE_URL)!;
-    const blogs = await prisma.blog.findMany();
-    
-    return c.json({
-      blogs
-    });
-  } catch (e) {
-    c.status(500);
-    return c.json({
-      message: "Error fetching blogs",
       error: e instanceof Error ? e.message : String(e)
     });
   }

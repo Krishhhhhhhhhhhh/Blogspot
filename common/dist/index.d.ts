@@ -9,12 +9,12 @@ export declare const signinInput: z.ZodObject<{
     password: z.ZodString;
 }, z.core.$strip>;
 export declare const createBlogInput: z.ZodObject<{
-    username: z.ZodEmail;
+    title: z.ZodString;
     content: z.ZodString;
 }, z.core.$strip>;
 export declare const updateBlogInput: z.ZodObject<{
-    username: z.ZodEmail;
-    content: z.ZodString;
+    title: z.ZodOptional<z.ZodString>;
+    content: z.ZodOptional<z.ZodString>;
 }, z.core.$strip>;
 export type SignupInput = z.infer<typeof signupInput>;
 export type SigninInput = z.infer<typeof signinInput>;
