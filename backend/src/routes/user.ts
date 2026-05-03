@@ -23,7 +23,7 @@ userRouter.post('/signup', async (c) => {
   }
   
   const prisma = new PrismaClient({
-    accelerateUrl: c.env.DATABASE_URL
+    datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
 
   let token: string
@@ -62,7 +62,7 @@ userRouter.post('/signin', async (c) => {
   }
   
   const prisma = new PrismaClient({
-    accelerateUrl: c.env.DATABASE_URL
+    datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
 
   let token: string

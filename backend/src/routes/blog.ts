@@ -24,26 +24,18 @@ let cachedDatabaseUrl: string = '';
 
 const createPrismaClient = (databaseUrl: string) => {
   return new PrismaClient({
-    // For Accelerate, pass the accelerateUrl
-    ...(databaseUrl && { accelerateUrl: databaseUrl }),
-  } as any).$extends(withAccelerate());
+    datasourceUrl: databaseUrl,
+  }).$extends(withAccelerate());
 };
 
 const getPrismaClient = (databaseUrl: string) => {
   // Recreate if URL changed or if client doesn't exist
   if (!prismaClient || cachedDatabaseUrl !== databaseUrl) {
-    process.env.DATABASE_URL = databaseUrl;
     cachedDatabaseUrl = databaseUrl;
     prismaClient = createPrismaClient(databaseUrl);
   }
   return prismaClient;
 };
-
-// Middleware to set DATABASE_URL for all requests
-blogRouter.use('/*', async (c, next) => {
-  process.env.DATABASE_URL = c.env.DATABASE_URL;
-  await next();
-});
 
 // Auth middleware for protected routes (only POST and PUT)
 const authMiddleware = async (c: any, next: any) => {
