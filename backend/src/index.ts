@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 import { userRouter } from './routes/user.js'
 import { blogRouter } from './routes/blog.js'
 
@@ -11,18 +10,22 @@ const app = new Hono<{
   }
 }>()
 
-app.use('*', cors({
-  origin: (origin) => {
-    const allowed = [
-      'https://blogspot-flame.vercel.app',
-      'http://localhost:5173'
-    ]
-    if (!origin) return ''
-    return allowed.includes(origin) ? origin : ''
-  },
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-}))
+app.use('*', async (c, next) => {
+  const origin = c.req.header('origin')
+  const allowedOrigins = c.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    c.header('Access-Control-Allow-Origin', origin)
+  }
+  c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  
+  if (c.req.method === 'OPTIONS') {
+    return new Response(null, { status: 200 })
+  }
+  
+  await next()
+})
 
 app.route("/api/v1/user", userRouter)
 app.route("/api/v1/blog", blogRouter)

@@ -1,5 +1,5 @@
 import {Hono} from "hono";
-import { PrismaClient } from "../generated/prisma/client.js";
+import { PrismaClient } from "../generated/prisma";
 import { withAccelerate } from '@prisma/extension-accelerate'
 import jwt from 'jsonwebtoken'
 import {signupInput, signinInput} from "medium-commonjs-krishna"
@@ -13,9 +13,9 @@ export const userRouter = new Hono<{
 
 userRouter.post('/signup', async (c) => {
   const body = await c.req.json();
-  const { success } = signupInput.safeParse(body);
+  const result = signupInput.safeParse(body);
   
-  if(!success){
+  if(!result.success){
     c.status(411);
     return c.json({
       message: "Inputs not correct :("
@@ -23,7 +23,7 @@ userRouter.post('/signup', async (c) => {
   }
   
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
+    accelerateUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
 
   let token: string
@@ -31,9 +31,9 @@ userRouter.post('/signup', async (c) => {
   try {
     const user = await prisma.user.create({
       data: {
-        username: body.username,
-        password: body.password,
-        name: body.name
+        username: result.data.username,
+        password: result.data.password,
+        name: result.data.name
       }
     })
     
@@ -52,9 +52,9 @@ userRouter.post('/signup', async (c) => {
 
 userRouter.post('/signin', async (c) => {
   const body = await c.req.json();
-  const { success } = signinInput.safeParse(body);
+  const result = signinInput.safeParse(body);
   
-  if(!success){
+  if(!result.success){
     c.status(411);
     return c.json({
       message: "Inputs not correct :("
@@ -62,7 +62,7 @@ userRouter.post('/signin', async (c) => {
   }
   
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
+    accelerateUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
 
   let token: string
@@ -70,8 +70,8 @@ userRouter.post('/signin', async (c) => {
   try {
     const user = await prisma.user.findFirst({
       where: {
-        username: body.username,
-        password: body.password
+        username: result.data.username,
+        password: result.data.password
       }
     })
 
