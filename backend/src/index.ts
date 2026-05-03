@@ -10,24 +10,39 @@ const app = new Hono<{
   }
 }>()
 
+// ✅ Ping route (AFTER app creation)
+app.get('/ping', (c) => {
+  return c.text('PING_OK_V5')
+})
+
+console.log('CORS VERSION 5 LIVE')
+
+// ✅ BULLETPROOF CORS FOR WORKERS
 app.use('*', async (c, next) => {
-  const origin = c.req.header('origin')
-  const allowedOrigins = c.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-  
-  if (origin && allowedOrigins.includes(origin)) {
-    c.header('Access-Control-Allow-Origin', origin)
-  }
+  const origin = c.req.header('origin') ?? ''
+
+  // Always set CORS headers FIRST
   c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  
-  if (c.req.method === 'OPTIONS') {
-    return new Response(null, { status: 200 })
+  c.header('Access-Control-Max-Age', '86400')
+
+  if (origin) {
+    c.header('Access-Control-Allow-Origin', origin)
+    c.header('Vary', 'Origin')
+  } else {
+    // Fallback for preflight without origin
+    c.header('Access-Control-Allow-Origin', '*')
   }
-  
+
+  if (c.req.method === 'OPTIONS') {
+    return c.newResponse(null, 204)
+  }
+
   await next()
 })
 
-app.route("/api/v1/user", userRouter)
-app.route("/api/v1/blog", blogRouter)
+// Routes
+app.route('/api/v1/user', userRouter)
+app.route('/api/v1/blog', blogRouter)
 
 export default app
