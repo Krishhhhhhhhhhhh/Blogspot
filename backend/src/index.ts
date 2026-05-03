@@ -7,22 +7,22 @@ const app = new Hono<{
   Bindings: {
     DATABASE_URL: string
     JWT_SECRET: string
+    ALLOWED_ORIGINS: string
   }
 }>()
 
 app.use('*', cors({
-  origin: [
-    'https://bloggerhub-git-master-krishnas-projects-fa14a608.vercel.app',
-    'http://localhost:5173'
-  ],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  origin: (origin) => {
+    const allowed = [
+      'https://blogspot-flame.vercel.app',
+      'http://localhost:5173'
+    ]
+    if (!origin) return ''
+    return allowed.includes(origin) ? origin : ''
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
 }))
-
-// ✅ Correct preflight handler
-app.options('*', (c) => {
-  return c.body(null, 204);
-});
 
 app.route("/api/v1/user", userRouter)
 app.route("/api/v1/blog", blogRouter)
