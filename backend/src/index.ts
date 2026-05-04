@@ -6,13 +6,9 @@ import { blogRouter } from './routes/blog.js'
 const app = new Hono()
 
 app.use(
-  '/api/*',
+  '*',
   cors({
-    origin: [
-      'https://blogspot-flame.vercel.app',
-      'http://localhost:5173',
-      'http://localhost:3000'
-    ],
+    origin: '*',
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     maxAge: 86400,
