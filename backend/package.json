@@ -7,15 +7,13 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.7.0",
-    "@prisma/client": "^7.7.0",
+    "@prisma/client": "^6.19.3",
     "@prisma/extension-accelerate": "^3.0.1",
     "hono": "^4.12.14",
     "init": "^0.1.2",
     "jsonwebtoken": "^9.0.3",
     "medium-commonjs-krishna": "file:../common",
-    "prisma": "^7.7.0"
-    
+    "prisma": "^6.19.3"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",

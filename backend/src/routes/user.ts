@@ -1,6 +1,5 @@
-import {Hono} from "hono";
-import { PrismaClient } from "../generated/prisma";
-import { withAccelerate } from '@prisma/extension-accelerate'
+import { getPrisma } from "../lib/prisma"
+import { Hono } from "hono";
 import jwt from 'jsonwebtoken'
 import {signupInput, signinInput} from "medium-commonjs-krishna"
 
@@ -22,9 +21,7 @@ userRouter.post('/signup', async (c) => {
     })
   }
   
-  const prisma = new PrismaClient({
-    accelerateUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate())
+  const prisma = getPrisma(c.env.DATABASE_URL)
 
   let token: string
 
@@ -49,7 +46,7 @@ userRouter.post('/signup', async (c) => {
 
   return c.json({ jwt: token });
 });
-
+//signin
 userRouter.post('/signin', async (c) => {
   const body = await c.req.json();
   const result = signinInput.safeParse(body);
@@ -61,9 +58,7 @@ userRouter.post('/signin', async (c) => {
     })
   }
   
-  const prisma = new PrismaClient({
-    accelerateUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate())
+  const prisma = getPrisma(c.env.DATABASE_URL)
 
   let token: string
 

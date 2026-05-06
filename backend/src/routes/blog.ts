@@ -1,5 +1,4 @@
-import { PrismaClient } from '../generated/prisma'
-import { withAccelerate } from '@prisma/extension-accelerate'
+import { getPrisma } from '../lib/prisma'
 import { Hono } from 'hono'
 import jwt from 'jsonwebtoken'
 import { createBlogInput, updateBlogInput } from 'medium-commonjs-krishna'
@@ -43,9 +42,7 @@ const authMiddleware = async (c: any, next: any) => {
 //
 blogRouter.get('/bulk', async (c) => {
   try {
-    const prisma = new PrismaClient({
-      accelerateUrl: c.env.DATABASE_URL,
-    }).$extends(withAccelerate())
+    const prisma = getPrisma(c.env.DATABASE_URL)
     const blogs = await prisma.blog.findMany()
 
     return c.json({ blogs })
@@ -64,9 +61,7 @@ blogRouter.get('/bulk', async (c) => {
 blogRouter.get('/:id', async (c) => {
   try {
     const id = parseInt(c.req.param('id'))
-    const prisma = new PrismaClient({
-      accelerateUrl: c.env.DATABASE_URL,
-    }).$extends(withAccelerate())
+    const prisma = getPrisma(c.env.DATABASE_URL)
 
     const blog = await prisma.blog.findUnique({
       where: { id },
@@ -100,9 +95,7 @@ blogRouter.post('/', authMiddleware, async (c) => {
       return c.json({ message: 'Inputs not correct :(' })
     }
 
-    const prisma = new PrismaClient({
-      accelerateUrl: c.env.DATABASE_URL,
-    }).$extends(withAccelerate())
+    const prisma = getPrisma(c.env.DATABASE_URL)
 
     const blog = await prisma.blog.create({
       data: {
@@ -136,9 +129,7 @@ blogRouter.put('/:id', authMiddleware, async (c) => {
     }
 
     const id = parseInt(c.req.param('id'))
-    const prisma = new PrismaClient({
-      accelerateUrl: c.env.DATABASE_URL,
-    }).$extends(withAccelerate())
+    const prisma = getPrisma(c.env.DATABASE_URL)
 
     const blog = await prisma.blog.update({
       where: { id },
